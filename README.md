@@ -26,8 +26,10 @@ OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 ```bash
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
-python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:telegram:direct:123456'
+python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
 ```
+
+Replace the session key with the actual value from your `sessions.json`. The format depends on the channel and session type, so do not assume Telegram-specific keys.
 
 ## Package
 

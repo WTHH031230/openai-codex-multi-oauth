@@ -24,8 +24,10 @@
 ```bash
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
-python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:telegram:direct:123456'
+python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
 ```
+
+这里的 session key 需要替换成你自己 `sessions.json` 里的真实值，不要默认写死 Telegram。
 
 ## 打包
 
