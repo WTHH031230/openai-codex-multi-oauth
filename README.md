@@ -1,5 +1,7 @@
 # openai-codex-multi-oauth
 
+[中文说明 / Chinese version](README.zh-CN.md)
+
 OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 
 ## What it covers
