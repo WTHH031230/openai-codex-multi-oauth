@@ -29,7 +29,7 @@ python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
 ```
 
-Replace the session key with the actual value from your `sessions.json`. The format depends on the channel and session type, so do not assume Telegram-specific keys.
+Replace the session key with the actual value from your `sessions.json`. The exact format depends on the channel and session type. **This workflow has only been validated on Telegram sessions so far**; for other channels, treat the example as a placeholder and use the real key structure from the target environment.
 
 ## Package
 

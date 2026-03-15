@@ -27,7 +27,7 @@ python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
 ```
 
-这里的 session key 需要替换成你自己 `sessions.json` 里的真实值，不要默认写死 Telegram。
+这里的 session key 需要替换成你自己 `sessions.json` 里的真实值。当前这套说明和示例**实际只在 Telegram 会话上验证过**；如果你在别的 channel 上使用，请以目标环境中的真实 session key 结构为准。
 
 ## 打包
 
