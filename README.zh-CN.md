@@ -2,6 +2,13 @@
 
 用于管理和排查 OpenClaw 中多个 OpenAI Codex OAuth 配置的 skill。
 
+## 仓库结构
+
+- `openai-codex-multi-oauth/` — 真正的 skill 目录
+- `openai-codex-multi-oauth/SKILL.md` — skill 主说明
+- `openai-codex-multi-oauth/references/` — 参考资料
+- `openai-codex-multi-oauth/scripts/` — 辅助脚本
+
 ## 覆盖内容
 
 - 多个 `openai-codex` OAuth 登录
@@ -12,16 +19,10 @@
 - auth profile 持久化
 - `/status` 与 usage 不一致的排查
 
-## 仓库结构
-
-- `SKILL.md` — skill 主说明
-- `references/runtime-files.md` — 关键文件位置与分层说明
-- `references/workflows.md` — 标准排障流程与回滚点
-- `scripts/summarize_codex_profiles.py` — 快速检查脚本
-
 ## 快速开始
 
 ```bash
+cd openai-codex-multi-oauth
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
@@ -31,7 +32,7 @@ python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:
 
 ## 打包
 
-可使用 OpenClaw 自带的 skill 打包脚本生成 `.skill` 文件。
+打包时请从 skill 子目录执行，而不是从仓库根目录执行。
 
 ## 说明
 

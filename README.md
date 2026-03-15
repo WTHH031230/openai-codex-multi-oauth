@@ -4,6 +4,13 @@
 
 OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 
+## Repository layout
+
+- `openai-codex-multi-oauth/` — the actual skill folder
+- `openai-codex-multi-oauth/SKILL.md` — main skill instructions
+- `openai-codex-multi-oauth/references/` — supporting references
+- `openai-codex-multi-oauth/scripts/` — helper scripts
+
 ## What it covers
 
 - multiple `openai-codex` OAuth logins
@@ -14,16 +21,10 @@ OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 - auth profile persistence
 - `/status` and usage mismatch diagnosis
 
-## Skill layout
-
-- `SKILL.md` — main skill instructions
-- `references/runtime-files.md` — file locations and layer map
-- `references/workflows.md` — standard workflows and rollback points
-- `scripts/summarize_codex_profiles.py` — inspection helper
-
 ## Quick start
 
 ```bash
+cd openai-codex-multi-oauth
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
@@ -31,9 +32,9 @@ python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:
 
 Replace the session key with the actual value from your `sessions.json`. The exact format depends on the channel and session type. **This workflow has only been validated on Telegram sessions so far**; for other channels, treat the example as a placeholder and use the real key structure from the target environment.
 
-## Package
+## Packaging
 
-The packaged skill file is generated with the OpenClaw skill packager.
+Package the skill from the skill subdirectory, not from the repo root.
 
 ## Notes
 
