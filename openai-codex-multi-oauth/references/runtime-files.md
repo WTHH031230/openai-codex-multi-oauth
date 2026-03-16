@@ -1,10 +1,10 @@
 # Runtime files and inspection points
 
-These are common defaults for a standard local OpenClaw install. Confirm the target agent id, state directory, and package path before patching.
+These are the file families that usually matter when debugging multiple Codex OAuth profiles in OpenClaw.
 
-## State files
+## Core state files
 
-- stored preferred Codex profile:
+- saved local profile pointer, if the setup keeps one:
   - `~/.openclaw/codex_profile_id`
 - auth profile store for agent `main`:
   - `~/.openclaw/agents/main/agent/auth-profiles.json`
@@ -15,15 +15,20 @@ These are common defaults for a standard local OpenClaw install. Confirm the tar
 
 For non-`main` agents, replace `main` in the path.
 
-## Runtime bundles that often matter
+## Optional external-router files
 
-- OpenClaw bundled auth/runtime logic:
-  - `~/.npm-global/lib/node_modules/openclaw/dist/auth-profiles-*.js`
-  - `~/.npm-global/lib/node_modules/openclaw/dist/provider-auth-helpers-*.js`
-- Codex provider transport:
-  - `~/.npm-global/lib/node_modules/openclaw/node_modules/@mariozechner/pi-ai/dist/providers/openai-codex-responses.js`
+Some setups keep a separate repository of Codex OAuth identities and route one selected profile into an active runtime slot.
 
-Adjust paths if OpenClaw is installed elsewhere.
+Common examples:
+
+- external profile repo:
+  - `~/.openclaw/codex-oauth-profiles.json`
+- local helper command:
+  - `~/.openclaw/codex_profile`
+- local router script:
+  - `<workspace>/scripts/codex_oauth_router.py`
+
+Treat these as optional. Not every install has them.
 
 ## What each layer usually controls
 
@@ -32,32 +37,44 @@ Adjust paths if OpenClaw is installed elsewhere.
 - `order.openai-codex`
 - `usageStats`
 - `lastGood`
+- active-slot content in external-router designs
 
 ### `sessions.json`
-- per-session model/provider selection
+- per-session model/provider state
 - `authProfileOverride`
-- whether the current chat is pinned or auto-overridden to a specific auth profile
+- the OAuth id that `/status` should show for the current chat
 
-### `auth-profiles-*.js`
-- auth profile order resolution
-- cooldown/failover behavior
-- status card rendering
-- usage loading
+### external profile repo, if present
+- the canonical list of multiple Codex OAuth identities
+- metadata used for display labels
+- the profile the router/helper believes is selected
 
-### `openai-codex-responses.js`
-- request header construction
-- local accountId extraction
-- bearer token handling before request dispatch
+### local helper command, if present
+- user-facing switching flow
+- session-sync behavior when the selected profile should also update current-chat state
+- a common source of bugs when command invocation lacks the expected chat/session env
+
+## Runtime bundles that often matter
+
+- OpenClaw bundled status / auth / usage logic:
+  - `~/.npm-global/lib/node_modules/openclaw/dist/model-selection-*.js`
+  - `~/.npm-global/lib/node_modules/openclaw/dist/plugin-sdk/thread-bindings-*.js`
+  - `~/.npm-global/lib/node_modules/openclaw/dist/auth-profiles-*.js`
+- Codex provider transport:
+  - `~/.npm-global/lib/node_modules/openclaw/node_modules/@mariozechner/pi-ai/dist/providers/openai-codex-responses.js`
+
+Adjust paths if OpenClaw is installed elsewhere.
 
 ## Fast inspection checklist
 
-1. inspect stored preferred profile state
-2. inspect `order.openai-codex` in the relevant auth store
-3. inspect `authProfileOverride` in the relevant session registry
-4. inspect whether runtime failover is expected or accidental
-5. if usage is wrong or missing, inspect the status-card usage loader path
-6. if calls fail before remote auth handling, inspect `openai-codex-responses.js`
+1. inspect stored preference or helper-selected profile state
+2. inspect `order.openai-codex`
+3. inspect current session `authProfileOverride`
+4. inspect the effective runtime profile or active slot if the setup has one
+5. if usage is wrong, inspect the runtime usage loader path, not only router state
+6. if a helper command exists, reproduce through that real path at least once
+7. if requests fail before remote auth handling, inspect `openai-codex-responses.js`
 
 ## Portability note
 
-This skill documents workflows for investigating multiple Codex OAuth profiles. Exact patch locations can change between OpenClaw versions. Confirm the target version and code path before reusing a patch literally.
+Exact dist bundle filenames and routing conventions change across OpenClaw versions and local installations. Confirm the target version and actual file layout before reusing a patch literally.
