@@ -16,9 +16,7 @@ OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 
 ## Supported setups
 
-This repository is intended to stay generic and publishable.
-
-It covers two common patterns:
+It mainly covers two common patterns:
 
 1. **native auth-store setup**
    - multiple `openai-codex:*` profiles live directly in `auth-profiles.json`
@@ -60,4 +58,4 @@ Package the skill from the skill subdirectory, not from the repo root.
 
 ## Notes
 
-Keep machine-specific patches, secrets, and local incident notes out of this repo.
+Keep the repo focused on reusable workflows, examples, and diagnostics. Put local incident notes, secrets, and one-off machine patches somewhere else.
