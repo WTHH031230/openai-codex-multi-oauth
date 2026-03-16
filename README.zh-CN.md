@@ -23,7 +23,7 @@
 2. **外部 router 形态**
    - 另外维护一份 Codex OAuth profile 仓库，再由 helper/router 把选中的 profile 复制到运行时 active slot
 
-这个 skill **不再假设**固定机器、用户名、workspace 路径，或某个特定 helper 实现。
+这里提供的是可迁移的排查模式；路径、helper 名称和 router 细节请按你的实际部署调整。
 
 ## 仓库结构
 

@@ -25,7 +25,7 @@ It covers two common patterns:
 2. **external-router setup**
    - a separate repo of Codex OAuth identities exists, and a helper/router copies one selected profile into an active runtime slot
 
-The skill does **not** assume a specific machine, username, workspace path, or helper implementation.
+Use the patterns here as templates, then adapt paths, helper names, and router details to your own deployment.
 
 ## Repository layout
 
