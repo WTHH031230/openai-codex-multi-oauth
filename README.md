@@ -1,101 +1,141 @@
-# openai-codex-multi-oauth
+# OpenAI Codex Multi OAuth
 
-[中文说明 / Chinese version](README.zh-CN.md)
+[中文说明](README.zh-CN.md)
 
-OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
+Manage and debug multiple Codex OAuth profiles in OpenClaw.
 
-## What a human operator gets
+This repo is for people who run OpenClaw and want Codex profile behavior to stay understandable: which profile a chat is using, why usage looks wrong, whether OpenClaw auto-switched after rate limits, and how to compare profiles safely.
 
-This is meant for people running OpenClaw, not only for people reading source code.
+## What this repo helps with
 
-It helps you understand and explain things like:
+Use this repo if you want to:
 
-- which Codex profile the current chat is using
-- whether the chat has its own pinned profile override
-- whether OpenClaw auto-switched after rate limits
-- whether `/status` usage is reading the profile you expected
-- why two profiles may look similar even when they should stay distinct
+- keep multiple Codex accounts or identities in one OpenClaw setup
+- understand which profile the current chat is actually using
+- debug `/status` when the shown usage does not match your expectation
+- compare live usage for different profiles
+- understand whether two profiles are truly distinct or only look similar
+- debug helper commands such as `/codex_profile` or `/codex_usage`
+- understand auto-switch / failover behavior after limits or broken tokens
 
-## Common user-facing commands and surfaces
+## What you will see in OpenClaw
 
-These are common patterns in real deployments. Some are built in, some are local helper commands added by a deployment:
+Depending on the deployment, you may see some of these user-facing surfaces:
 
-- `/status` — confirm the current chat's model, selected profile semantics, and usage summary
-- `/codex_profile` — optional helper command in some setups for viewing or switching the current Codex profile
-- `/codex_usage` — optional helper command in some setups for comparing live usage across profiles
+| Surface | What it is for |
+| --- | --- |
+| `/status` | Check the current chat's model, profile semantics, and usage summary |
+| `/codex_profile` | In some setups, inspect or switch the Codex profile for the current chat |
+| `/codex_usage` | In some setups, compare live usage across Codex profiles |
+| automatic profile rotation / failover | OpenClaw may switch profiles after rate limits, token failures, or cooldown logic |
 
-Important: `/codex_profile` and `/codex_usage` are not guaranteed built-ins in every OpenClaw install. This skill explains how to debug and implement them correctly.
+Important:
 
-## What it covers
+- `/status` is a normal OpenClaw surface.
+- `/codex_profile` and `/codex_usage` are **common deployment patterns**, not guaranteed built-ins in every install.
+- This repo explains both how to use these patterns and how to debug them correctly.
 
-- multiple `openai-codex` OAuth logins
-- same-email but different account/workspace handling
-- profile allocation and selection
-- auth-order and session-override debugging
-- helper / router switch flows
-- `/status` and usage mismatch diagnosis
-- per-profile live usage inspection
-- same-team-workspace but different-user usage debugging
-- broken-token recovery
+## Typical questions this repo answers
 
-## Supported setups
+- "Why is this chat suddenly using the wrong Codex account?"
+- "Why did `/status` show one thing but usage looked like another profile?"
+- "Did OpenClaw auto-switch profiles after a rate limit?"
+- "These two profiles look identical — are they actually sharing quota, or did the local code fetch the wrong token?"
+- "How should `/codex_profile` or `/codex_usage` be implemented so users see the truth?"
 
-It mainly covers two common patterns:
+## Quick start
 
-1. **native auth-store setup**
-   - multiple `openai-codex:*` profiles live directly in `auth-profiles.json`
-2. **external-router setup**
-   - a separate repo of Codex OAuth identities exists, and a helper/router copies one selected profile into an active runtime slot
+### 1) See what profiles exist
 
-Use the patterns here as templates, then adapt paths, helper names, and router details to your own deployment.
+```bash
+python3 scripts/summarize_codex_profiles.py
+```
+
+### 2) Compare live usage for specific profiles
+
+```bash
+python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
+```
+
+### 3) Dump machine-readable state
+
+```bash
+python3 scripts/summarize_codex_profiles.py --agent main --json
+```
+
+## Common workflows
+
+### Check whether the current issue is selection, usage, or display
+
+Start with:
+
+```bash
+python3 scripts/summarize_codex_profiles.py
+python3 scripts/codex_usage_report.py
+```
+
+Use the first script to understand stored state, auth order, and session overrides.
+Use the second script to fetch live per-profile usage directly from each credential.
+
+### Debug a wrong profile in `/status`
+
+Look at:
+
+- auth order
+- the current chat's `authProfileOverride`
+- active-slot routing if your setup uses an external router
+- whether usage fetching hard-pins the intended profile or only soft-prefers it
+
+### Debug suspiciously identical usage
+
+Compare:
+
+- `user_id`
+- `account_id`
+- `email`
+- reset times
+
+If `account_id` matches but `user_id` differs, the profiles may belong to the same team workspace while still being separate users.
+
+## Why this repo exists
+
+OpenClaw multi-profile Codex setups usually have several different layers that can drift apart:
+
+- stored preference
+- auth order
+- per-chat override
+- effective runtime profile
+- usage source
+- display label shown to the user
+
+Most confusing bugs come from mixing those layers together.
+
+This repo is meant to make those differences visible instead of implicit.
 
 ## Repository layout
 
 - `openai-codex-multi-oauth/` — the actual skill folder
-- `openai-codex-multi-oauth/SKILL.md` — main skill instructions
-- `openai-codex-multi-oauth/references/` — supporting references
-- `openai-codex-multi-oauth/scripts/` — helper scripts
+- `openai-codex-multi-oauth/SKILL.md` — agent-facing skill instructions
+- `openai-codex-multi-oauth/references/` — detailed references and workflows
+- `openai-codex-multi-oauth/scripts/` — reusable diagnostic scripts
 
-## Typical usage flows
+If you are a human operator, start with this README.
+If you are wiring the skill into an agent workflow, read `openai-codex-multi-oauth/SKILL.md`.
 
-### 1) I want to see what profiles exist
+## Example commands
 
 ```bash
+# inspect profiles and recent sessions
 python3 scripts/summarize_codex_profiles.py
-```
 
-### 2) I want to compare live usage for two profiles
+# inspect one exact profile
+python3 scripts/codex_usage_report.py --profile tertiary
 
-```bash
-python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
-```
+# compare two profiles directly
+python3 scripts/codex_usage_report.py --profile quaternary --profile quinary
 
-### 3) I see the wrong profile in `/status`
-
-Use this skill to inspect:
-
-- auth order
-- session `authProfileOverride`
-- active-slot routing
-- whether runtime usage is soft-preferred or hard-pinned
-
-### 4) I suspect OpenClaw auto-switched profiles after a limit
-
-Use this skill to distinguish:
-
-- what the user selected
-- what the current chat prefers
-- what profile the runtime actually used after failover
-
-## Quick start
-
-```bash
-cd openai-codex-multi-oauth
-python3 scripts/summarize_codex_profiles.py
-python3 scripts/summarize_codex_profiles.py --agent main --json
+# inspect a specific session key
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
-python3 scripts/codex_usage_report.py
-python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
 ```
 
 For external-router setups, pass optional path overrides when needed:
@@ -107,14 +147,20 @@ python3 scripts/summarize_codex_profiles.py \
   --router-path /path/to/workspace/scripts/codex_oauth_router.py
 ```
 
-Replace the session key with the actual value from your own `sessions.json`. Session key shapes vary by channel and deployment.
+## Notes for adapting to your own setup
 
-If two profiles look suspiciously identical, compare `user_id`, `account_id`, and reset times before concluding the backend merged their quotas. Same team workspace does not automatically mean same per-user usage bucket.
+- session key formats vary by channel and deployment
+- helper command names vary by deployment
+- some installs keep all profiles in the native auth store
+- some installs keep a separate profile repo and copy one profile into an active runtime slot
+
+Use the patterns here as templates, then adapt them to your own deployment.
 
 ## Packaging
 
-Package the skill from the skill subdirectory, not from the repo root.
+Package from the skill subdirectory, not from the repository root.
 
-## Notes
+## Scope
 
-Keep the repo focused on reusable workflows, examples, and diagnostics. Put local incident notes, secrets, and one-off machine patches somewhere else.
+This repo keeps reusable workflows, explanations, and scripts.
+Do not put secrets, incident logs, or one-off machine patches here.
