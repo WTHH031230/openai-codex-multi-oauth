@@ -4,6 +4,28 @@
 
 OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 
+## What a human operator gets
+
+This is meant for people running OpenClaw, not only for people reading source code.
+
+It helps you understand and explain things like:
+
+- which Codex profile the current chat is using
+- whether the chat has its own pinned profile override
+- whether OpenClaw auto-switched after rate limits
+- whether `/status` usage is reading the profile you expected
+- why two profiles may look similar even when they should stay distinct
+
+## Common user-facing commands and surfaces
+
+These are common patterns in real deployments. Some are built in, some are local helper commands added by a deployment:
+
+- `/status` — confirm the current chat's model, selected profile semantics, and usage summary
+- `/codex_profile` — optional helper command in some setups for viewing or switching the current Codex profile
+- `/codex_usage` — optional helper command in some setups for comparing live usage across profiles
+
+Important: `/codex_profile` and `/codex_usage` are not guaranteed built-ins in every OpenClaw install. This skill explains how to debug and implement them correctly.
+
 ## What it covers
 
 - multiple `openai-codex` OAuth logins
@@ -33,6 +55,37 @@ Use the patterns here as templates, then adapt paths, helper names, and router d
 - `openai-codex-multi-oauth/SKILL.md` — main skill instructions
 - `openai-codex-multi-oauth/references/` — supporting references
 - `openai-codex-multi-oauth/scripts/` — helper scripts
+
+## Typical usage flows
+
+### 1) I want to see what profiles exist
+
+```bash
+python3 scripts/summarize_codex_profiles.py
+```
+
+### 2) I want to compare live usage for two profiles
+
+```bash
+python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
+```
+
+### 3) I see the wrong profile in `/status`
+
+Use this skill to inspect:
+
+- auth order
+- session `authProfileOverride`
+- active-slot routing
+- whether runtime usage is soft-preferred or hard-pinned
+
+### 4) I suspect OpenClaw auto-switched profiles after a limit
+
+Use this skill to distinguish:
+
+- what the user selected
+- what the current chat prefers
+- what profile the runtime actually used after failover
 
 ## Quick start
 

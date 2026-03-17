@@ -7,6 +7,26 @@ description: Manage and debug multiple OpenAI Codex OAuth profiles inside OpenCl
 
 Support and debug more than one `openai-codex` OAuth login inside OpenClaw.
 
+## Human-facing overview
+
+This skill is also meant to help a human operator understand the setup, not only help an agent patch code.
+
+What humans usually want to know:
+
+- which Codex profile the current chat is using
+- whether the current chat has its own pinned profile override
+- whether OpenClaw auto-switched after rate limits
+- whether `/status` usage matches the profile they expected
+- why two profiles may look similar even when they should stay distinct
+
+Common user-facing surfaces in real deployments:
+
+- `/status` — confirm the current chat's selected model, profile semantics, and usage summary
+- `/codex_profile` — an optional helper command in some setups for viewing or switching the current Codex profile
+- `/codex_usage` — an optional helper command in some setups for comparing live usage across profiles
+
+Treat `/codex_profile` and `/codex_usage` as common patterns, not guaranteed OpenClaw built-ins.
+
 ## Start here
 
 1. Run `python3 scripts/summarize_codex_profiles.py`.
@@ -136,6 +156,21 @@ After each change, verify all of these:
 5. `/status` shows the intended semantic
 6. usage matches the intended semantic, or the difference is explicitly understood
 7. any helper command resolves the same profile id the runtime is using
+
+## Common operator examples
+
+Use examples like these when explaining the setup to a human:
+
+- "Use `/codex_profile` to inspect or switch the profile for this chat if your deployment exposes that helper."
+- "Use `/status` to confirm which profile the current chat prefers and whether usage looks aligned."
+- "If a `/codex_usage` helper exists, compare profiles directly when usage looks suspicious."
+- "If OpenClaw auto-rotated after rate limits, explain that the runtime may have switched profiles even if the user did not do it manually."
+
+When documenting commands, always say whether they are:
+
+- built into OpenClaw
+- local helper commands added by a specific deployment
+- examples that another operator may need to adapt
 
 ## Bundled resources
 

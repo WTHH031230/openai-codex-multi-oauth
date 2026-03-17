@@ -2,6 +2,28 @@
 
 用于管理和排查 OpenClaw 中多个 OpenAI Codex OAuth 配置的 skill。
 
+## 人能直接关心的内容
+
+这个仓库不是只给写代码的人看的，也适合 OpenClaw 的实际使用者 / 运维者看。
+
+它主要帮你搞清楚这些问题：
+
+- 当前聊天到底在用哪个 Codex profile
+- 这个聊天是不是有自己单独 pin 住的 profile override
+- 遇到 rate limit 之后 OpenClaw 有没有自动切换 profile
+- `/status` 里的 usage 到底是不是你预期的那个 profile
+- 为什么两个 profile 看起来很像，但其实应该分开
+
+## 常见的用户侧命令 / 入口
+
+下面这些是现实部署里很常见的入口；有的是 OpenClaw 内建，有的是某个部署自己加的 helper：
+
+- `/status` —— 看当前聊天的模型、profile 语义和 usage 摘要
+- `/codex_profile` —— 某些部署里会有，用来查看或切换当前聊天的 Codex profile
+- `/codex_usage` —— 某些部署里会有，用来比较多个 profile 的 live usage
+
+注意：`/codex_profile` 和 `/codex_usage` 不是每个 OpenClaw 安装都天然自带的。这份 skill 也会说明怎样正确实现和排查它们。
+
 ## 覆盖内容
 
 - 多个 `openai-codex` OAuth 登录
@@ -31,6 +53,37 @@
 - `openai-codex-multi-oauth/SKILL.md` — skill 主说明
 - `openai-codex-multi-oauth/references/` — 参考资料
 - `openai-codex-multi-oauth/scripts/` — 辅助脚本
+
+## 典型使用场景
+
+### 1）我想先看有哪些 profile
+
+```bash
+python3 scripts/summarize_codex_profiles.py
+```
+
+### 2）我想直接比较两个 profile 的 live usage
+
+```bash
+python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
+```
+
+### 3）我觉得 `/status` 里显示的 profile 不对
+
+这份 skill 会引导你检查：
+
+- auth order
+- session `authProfileOverride`
+- active-slot routing
+- usage 查询到底是 soft preference 还是 hard pin
+
+### 4）我怀疑 OpenClaw 在 rate limit 之后自动切了 profile
+
+这份 skill 会帮你区分：
+
+- 用户手动选的是谁
+- 当前聊天偏好的是谁
+- runtime 在 failover 之后真正用的是谁
 
 ## 快速开始
 
