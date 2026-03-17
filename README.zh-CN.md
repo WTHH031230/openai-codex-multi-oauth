@@ -10,6 +10,8 @@
 - auth order 与 session override 的排查
 - helper / router 切换链路排查
 - `/status` 与 usage 不一致的诊断
+- 按 profile 直接拉取 live usage
+- 同一 team workspace 下不同成员 usage 的排查
 - 损坏 token 的恢复
 
 ## 支持的形态
@@ -37,6 +39,8 @@ cd openai-codex-multi-oauth
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
+python3 scripts/codex_usage_report.py
+python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
 ```
 
 如果你的环境是外部 router 形态，可以按需传入路径：
@@ -49,6 +53,8 @@ python3 scripts/summarize_codex_profiles.py \
 ```
 
 这里的 session key 需要替换成你自己 `sessions.json` 里的真实值。不同 channel、不同部署的 key 结构可能不同。
+
+如果两个 profile 看起来像是同一份 usage，先比对 `user_id`、`account_id` 和 reset time，再判断是不是后端把额度合并了；同一个 team workspace 并不自动等于同一份 per-user usage bucket。
 
 ## 打包
 

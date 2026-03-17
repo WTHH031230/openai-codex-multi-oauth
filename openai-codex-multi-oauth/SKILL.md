@@ -10,9 +10,10 @@ Support and debug more than one `openai-codex` OAuth login inside OpenClaw.
 ## Start here
 
 1. Run `python3 scripts/summarize_codex_profiles.py`.
-2. Classify the bug before patching anything.
-3. Change the smallest wrong layer.
-4. Re-test after every change.
+2. If usage is involved, also run `python3 scripts/codex_usage_report.py`.
+3. Classify the bug before patching anything.
+4. Change the smallest wrong layer.
+5. Re-test after every change.
 
 If the target setup includes a local helper command or router script, reproduce through that real entrypoint at least once. Synthetic env-injected tests can miss session-sync bugs.
 
@@ -75,8 +76,17 @@ Check:
 2. the effective runtime profile for the current chat
 3. whether the usage loader resolves auth from generic provider order instead of the current session profile
 4. whether the UI is mixing preferred-profile and effective-profile semantics
+5. whether the usage fetch hard-pins the exact inspected profile or only passes a soft preference
 
-### 4) A profile works sometimes but not always
+### 4) Two profiles show the same usage unexpectedly
+
+Check:
+1. whether they share the same `accountId` because they are in the same team workspace
+2. whether `user_id` is still different in the live `wham/usage` response
+3. whether the local code accidentally fetched usage with the wrong token because provider-order fallback overrode the intended profile
+4. whether the same-looking result was intermittent, which usually points to local selection/fallback bugs rather than backend quota semantics
+
+### 5) A profile works sometimes but not always
 
 Check:
 1. cooldown / last-good logic
@@ -111,6 +121,8 @@ Then verify every layer against that semantic before patching.
   - `openai-codex:tertiary`
   - `openai-codex:account-N`
 - Do not blur preferred profile, effective runtime profile, and usage source profile.
+- Hard-pin the exact profile credential when implementing per-profile usage inspection; a provider-level preference is not always a guarantee.
+- A Telegram menu entry alone does not create a real executable command. Wire any `/codex_usage`-style surface into the actual command handler path.
 - If an external repo exists, treat it as a separate layer instead of silently merging it into runtime state.
 
 ## Validation checklist
@@ -129,7 +141,9 @@ After each change, verify all of these:
 
 - Read `references/runtime-files.md` for the file families that usually matter.
 - Read `references/workflows.md` for concrete repair workflows and rollback points.
+- Read `references/usage-debugging.md` when the bug involves usage mismatches, same-workspace confusion, or a new `/codex_usage`-style command.
 - Run `scripts/summarize_codex_profiles.py` before and after changes.
+- Run `scripts/codex_usage_report.py` when you need exact per-profile live usage evidence.
 
 ## Guardrails
 

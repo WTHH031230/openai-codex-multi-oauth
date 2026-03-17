@@ -12,6 +12,8 @@ OpenClaw skill for managing and debugging multiple OpenAI Codex OAuth profiles.
 - auth-order and session-override debugging
 - helper / router switch flows
 - `/status` and usage mismatch diagnosis
+- per-profile live usage inspection
+- same-team-workspace but different-user usage debugging
 - broken-token recovery
 
 ## Supported setups
@@ -39,6 +41,8 @@ cd openai-codex-multi-oauth
 python3 scripts/summarize_codex_profiles.py
 python3 scripts/summarize_codex_profiles.py --agent main --json
 python3 scripts/summarize_codex_profiles.py --session-key 'agent:main:<channel>:<scope>:<id>'
+python3 scripts/codex_usage_report.py
+python3 scripts/codex_usage_report.py --profile secondary --profile tertiary
 ```
 
 For external-router setups, pass optional path overrides when needed:
@@ -51,6 +55,8 @@ python3 scripts/summarize_codex_profiles.py \
 ```
 
 Replace the session key with the actual value from your own `sessions.json`. Session key shapes vary by channel and deployment.
+
+If two profiles look suspiciously identical, compare `user_id`, `account_id`, and reset times before concluding the backend merged their quotas. Same team workspace does not automatically mean same per-user usage bucket.
 
 ## Packaging
 
